@@ -268,6 +268,60 @@ def batch_output_dir(paths: PipelinePaths, batch_id: int) -> Path:
     return batch_dir
 
 
+def partial_batch_output_dir(paths: PipelinePaths, batch_id: int) -> Path:
+    """Return the partial-output directory for one split batch."""
+
+    partial_dir = batch_output_dir(paths, batch_id) / "partials"
+    partial_dir.mkdir(parents=True, exist_ok=True)
+    return partial_dir
+
+
+def prepare_split_batch_outputs(
+    batch_dir: Path,
+    expected_parts: Sequence[str],
+    *,
+    force_reset: bool = False,
+    run_label: str = "",
+) -> dict[str, Any]:
+    """Initialize one split-batch run and clear stale canonical files once."""
+
+    batch_dir.mkdir(parents=True, exist_ok=True)
+    partial_dir = batch_dir / "partials"
+    partial_dir.mkdir(parents=True, exist_ok=True)
+    marker_path = partial_dir / "split_run_state.json"
+
+    marker_payload: dict[str, Any] = {}
+    if marker_path.exists():
+        try:
+            marker_payload = json.loads(marker_path.read_text())
+        except Exception:
+            marker_payload = {}
+
+    existing_label = str(marker_payload.get("run_label", ""))
+    did_reset = force_reset or not marker_path.exists() or (bool(run_label) and existing_label != run_label)
+    if did_reset:
+        for filename in ["batch_results.csv", "batch_success_submission.csv", "batch_failed_rows.csv"]:
+            path = batch_dir / filename
+            if path.exists():
+                path.unlink()
+        for path in partial_dir.glob("*.csv"):
+            path.unlink()
+        marker_payload = {
+            "expected_parts": list(expected_parts),
+            "run_label": run_label,
+            "initialized_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        }
+        marker_path.write_text(json.dumps(marker_payload, indent=2))
+
+    return {
+        "did_reset": did_reset,
+        "marker_path": marker_path,
+        "expected_parts": list(expected_parts),
+        "partial_dir": partial_dir,
+        "run_label": run_label or existing_label,
+    }
+
+
 def artifact_status_table(paths: PipelinePaths, *, batch_count: int = 4) -> pd.DataFrame:
     """Summarize the current artifact files present in Drive."""
 
@@ -1163,6 +1217,17 @@ def select_batch_df(test_df: pd.DataFrame, *, batch_id: int, batch_count: int = 
     return batch_df
 
 
+def select_row_slice(test_df: pd.DataFrame, start_row: int, end_row: int) -> pd.DataFrame:
+    """Select an exact contiguous row slice from the test frame."""
+
+    total_rows = len(test_df)
+    if start_row < 0 or end_row <= start_row or end_row > total_rows:
+        raise ValueError(f"Row slice must satisfy 0 <= start < end <= {total_rows}")
+    slice_df = test_df.iloc[start_row:end_row].copy().reset_index(drop=True)
+    slice_df["row_index"] = range(start_row, end_row)
+    return slice_df
+
+
 def run_first_pass_batch(
     batch_df: pd.DataFrame,
     runtime: RuntimeBundle,
@@ -1221,19 +1286,108 @@ def run_first_pass_batch(
     return normalize_results_df(pd.DataFrame(records))
 
 
+def _write_result_artifacts(results_df: pd.DataFrame, results_path: Path, success_path: Path, failed_path: Path) -> None:
+    """Write full, success-only, and failed-only result artifacts."""
+
+    results_df = normalize_results_df(results_df).sort_values("row_index").drop_duplicates(subset=["id"], keep="last")
+    results_df.to_csv(results_path, index=False)
+
+    success_df = results_df[results_df["first_pass_success"]].copy()
+    success_submission_df = success_df[["id", "clean_svg"]].rename(columns={"clean_svg": "svg"})
+    success_submission_df.to_csv(success_path, index=False)
+
+    failed_df = results_df[~results_df["first_pass_success"]].copy()
+    failed_df.to_csv(failed_path, index=False)
+
+
 def save_batch_outputs(results_df: pd.DataFrame, batch_dir: Path) -> None:
     """Write the full, success-only, and failed-only batch CSV artifacts."""
 
     batch_dir.mkdir(parents=True, exist_ok=True)
-    results_df = normalize_results_df(results_df)
-    results_df.to_csv(batch_dir / "batch_results.csv", index=False)
+    _write_result_artifacts(
+        results_df,
+        batch_dir / "batch_results.csv",
+        batch_dir / "batch_success_submission.csv",
+        batch_dir / "batch_failed_rows.csv",
+    )
 
-    success_df = results_df[results_df["first_pass_success"]].copy()
-    success_submission_df = success_df[["id", "clean_svg"]].rename(columns={"clean_svg": "svg"})
-    success_submission_df.to_csv(batch_dir / "batch_success_submission.csv", index=False)
 
-    failed_df = results_df[~results_df["first_pass_success"]].copy()
-    failed_df.to_csv(batch_dir / "batch_failed_rows.csv", index=False)
+def save_partial_batch_outputs(results_df: pd.DataFrame, batch_dir: Path, part_name: str) -> None:
+    """Write split-batch partial artifacts for one half of a batch."""
+
+    partial_dir = batch_dir / "partials"
+    partial_dir.mkdir(parents=True, exist_ok=True)
+    _write_result_artifacts(
+        results_df,
+        partial_dir / f"{part_name}_results.csv",
+        partial_dir / f"{part_name}_success_submission.csv",
+        partial_dir / f"{part_name}_failed_rows.csv",
+    )
+
+
+def load_partial_batch_outputs(batch_dir: Path, expected_parts: Sequence[str]) -> tuple[dict[str, pd.DataFrame], list[str]]:
+    """Load available partial batch outputs for the requested split parts."""
+
+    partial_dir = batch_dir / "partials"
+    frames: dict[str, pd.DataFrame] = {}
+    missing_parts: list[str] = []
+    for part_name in expected_parts:
+        path = partial_dir / f"{part_name}_results.csv"
+        if not path.exists():
+            missing_parts.append(part_name)
+            continue
+        frames[part_name] = normalize_results_df(pd.read_csv(path, keep_default_na=False))
+    return frames, missing_parts
+
+
+def finalize_split_batch_outputs(batch_dir: Path, expected_row_count: int = 250) -> dict[str, Any]:
+    """Combine split-batch partial outputs into canonical batch artifacts when ready."""
+
+    partial_dir = batch_dir / "partials"
+    marker_path = partial_dir / "split_run_state.json"
+    expected_parts: list[str]
+    if marker_path.exists():
+        marker_payload = json.loads(marker_path.read_text())
+        expected_parts = [str(part) for part in marker_payload.get("expected_parts", [])]
+    else:
+        expected_parts = sorted(path.name[: -len("_results.csv")] for path in partial_dir.glob("*_results.csv"))
+
+    if not expected_parts:
+        return {"ready": False, "missing_parts": [], "rows": 0, "batch_dir": str(batch_dir)}
+
+    partial_frames, missing_parts = load_partial_batch_outputs(batch_dir, expected_parts)
+    if missing_parts:
+        return {
+            "ready": False,
+            "missing_parts": missing_parts,
+            "rows": sum(len(frame) for frame in partial_frames.values()),
+            "batch_dir": str(batch_dir),
+        }
+
+    combined_df = normalize_results_df(pd.concat(partial_frames.values(), ignore_index=True))
+    combined_df = combined_df.sort_values("row_index").drop_duplicates(subset=["id"], keep="last")
+
+    if len(combined_df) != expected_row_count:
+        raise RuntimeError(
+            f"Expected {expected_row_count} combined rows for split batch, found {len(combined_df)}."
+        )
+
+    row_indexes = combined_df["row_index"].astype(int).tolist()
+    if len(set(row_indexes)) != expected_row_count:
+        raise RuntimeError("Combined split batch contains duplicate row_index values.")
+    if row_indexes and max(row_indexes) - min(row_indexes) + 1 != expected_row_count:
+        raise RuntimeError("Combined split batch does not cover one contiguous row range.")
+
+    save_batch_outputs(combined_df, batch_dir)
+    return {
+        "ready": True,
+        "missing_parts": [],
+        "rows": len(combined_df),
+        "batch_dir": str(batch_dir),
+        "first_row_index": int(min(row_indexes)) if row_indexes else 0,
+        "last_row_index": int(max(row_indexes)) if row_indexes else 0,
+        "expected_parts": expected_parts,
+    }
 
 
 def summarize_batch_results(results_df: pd.DataFrame) -> pd.DataFrame:
