@@ -2,7 +2,7 @@
 
 This repo now standardizes on a single supported submission path: [submission.ipynb](submission.ipynb).
 
-The current notebook mirrors the simple one-pass batched flow from [DL_Midterm_Eval.ipynb](DL_Midterm_Eval.ipynb), but adapts it for Google Colab with Google Drive mounting, repo checkout, persistent output folders, and merged-model discovery with a temporary base-plus-LoRA fallback.
+The current notebook is the simpler one-pass baseline that mirrors the flow from [DL_Midterm_Eval.ipynb](DL_Midterm_Eval.ipynb), but adapts it for Google Colab with Google Drive mounting, repo checkout, persistent output folders, and merged-model discovery with a temporary base-plus-LoRA fallback.
 
 ## Supported Workflow
 
@@ -16,6 +16,12 @@ It is the only supported execution path and is responsible for:
 - Falling back to base model plus LoRA adapter only when merged weights are not available yet.
 - Running midterm-style batched SVG generation and cleanup.
 - Writing the two supported outputs: `submission.csv` and `submission_debug.csv`.
+
+Baseline inference settings:
+
+- `max_new_tokens = 1536`
+- batch size `512`
+- deterministic decoding with `do_sample = False`
 
 Supported runtime contract:
 
@@ -34,13 +40,15 @@ That fallback exists only to keep the Colab workflow usable until the merged mod
 
 - [submission.ipynb](submission.ipynb): the only supported Colab submission notebook.
 - [DL_Midterm_Eval.ipynb](DL_Midterm_Eval.ipynb): the earlier midterm evaluation notebook that the current supported notebook intentionally mirrors.
-- [`archive/`](./archive): historical experiment notebooks preserved for documentation only.
+- [`archive/`](./archive): historical experiment notebooks and retired inference variants preserved for documentation only.
 
 `submission_pipeline.py` is intentionally no longer part of the supported or archived submission flow.
 
 ## Historical Strategies
 
 The notebooks in [`archive/`](./archive) are preserved to document strategies that were tried before the repo was simplified into the current single-notebook flow. They are historical references, not supported entrypoints.
+
+- [archive/2026-03-30-retry-experiment/](archive/2026-03-30-retry-experiment): retry-aware inference variant with archived notebook outputs, helper code, and run notes. This experiment was not promoted because it underperformed the simpler one-pass baseline.
 
 - [archive/submission_analysis.ipynb](archive/submission_analysis.ipynb): analyzed `train.csv`, compared `body_only` versus `full_svg`, and produced mode-selection guidance for the older batch workflow. This was superseded because the repo no longer needs a separate analysis notebook to drive multiple execution notebooks.
 - [archive/submission_batch_1.ipynb](archive/submission_batch_1.ipynb): ran deterministic first-pass inference for batch 1 of 4 with no retry stage. This was superseded by a single batched notebook that handles the full test set directly.

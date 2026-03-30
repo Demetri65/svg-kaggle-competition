@@ -7,7 +7,7 @@ This file is the prioritized completion plan for turning the current repo baseli
 - Ablations: `25%`
 - Leaderboard Performance: `20%`
 
-The current assumption is that the `DL_Midterm_Eval.ipynb` / `submission.ipynb` path is the completed baseline. Everything below is structured to preserve that baseline first, then improve rigor and score.
+The current assumption is that the `DL_Midterm_Eval.ipynb` / `submission.ipynb` path is the completed baseline. Everything below is structured to preserve that baseline first, then improve rigor and score. The retry-aware inference variant archived under `archive/2026-03-30-retry-experiment` is exploratory only and should not be treated as the canonical path.
 
 ## 1. Lock the Baseline
 
@@ -66,6 +66,7 @@ Rubric impact: ablations, methodology.
 - Compare the repair pipeline on versus off to quantify how much validity and quality it contributes.
 - Compare deterministic decoding against a controlled sampled-repair variant that preserves the baseline as the reference point.
 - Compare multiple `max_new_tokens` values and measure their effect on truncation, validity rate, and downstream score.
+- Compare structured multi-pass inference ideas such as layout planning, SVG generation, and targeted revision only after the one-pass baseline is locked again.
 - Store ablation outputs in a format that can be summarized directly in the final report.
 
 Exit criteria:

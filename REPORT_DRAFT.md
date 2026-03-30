@@ -18,7 +18,7 @@ This project targets the DL Spring 2026 Kaggle contest on text-to-SVG generation
 
 Our completed baseline uses `Qwen/Qwen2.5-Coder-1.5B-Instruct` fine-tuned with LoRA on prompt-to-SVG pairs, then performs deterministic inference with a merged model and a post-generation cleanup pipeline. The core methodological choice is evaluator alignment: instead of treating SVG generation as unconstrained free-form text generation, the pipeline explicitly optimizes for producing parser-valid, renderable SVGs that satisfy the contest contract. In practice, this means preferring a full-SVG prompt format, using deterministic decoding for the baseline submission path, and applying layered output cleanup consisting of extraction, regex repair, XML recovery, validation, and fallback behavior.
 
-This baseline is not yet the final optimized competition system. In particular, broader score optimization, expanded ablations, Kaggle no-internet packaging, and leaderboard tracking are planned next steps and are not claimed as completed here.
+This baseline is not yet the final optimized competition system. In particular, broader score optimization, expanded ablations, Kaggle no-internet packaging, and leaderboard tracking are planned next steps and are not claimed as completed here. A later retry-aware inference variant is preserved under `archive/2026-03-30-retry-experiment`, but it is treated as archived exploratory work rather than the active baseline.
 
 ## Dataset
 
@@ -175,6 +175,7 @@ The following evaluations are planned and are not claimed as completed:
 - Expand the `full_svg` versus `body_only` ablation beyond the 10-row smoke test.
 - Measure the effect of repair logic on validity rate and score.
 - Evaluate methods for reducing truncation and increasing gate pass rate.
+- Revisit structured multi-pass inference ideas such as layout planning, SVG generation, and targeted revision only after the one-pass baseline is re-locked.
 
 ## Conclusion
 
