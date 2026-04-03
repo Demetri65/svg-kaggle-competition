@@ -1,0 +1,9 @@
+filename,author,days_ago,score,notes
+submission.csv,Demetri Lopez,2,14.24411,
+submission (2).csv,Demetri Lopez,4,12.81385,
+submission (1).csv,Demetri Lopez,4,15.67745,
+submission - submission.csv,Demetri Lopez,5,15.73398,
+submission_different_prompt.csv,Preyansh Agrawal,5,9.72405,
+submission_different_fallback.csv,Preyansh Agrawal,5,16.73634,
+submission.csv,Demetri Lopez,5,18.22115,
+submission_1536.csv,Preyansh Agrawal,5,18.22498,baseline

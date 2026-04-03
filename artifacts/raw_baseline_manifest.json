@@ -1,0 +1,86 @@
+{
+  "canonical_experiment": {
+    "name": "raw_one_pass_baseline",
+    "description": "Original raw-data one-pass baseline used as the only official midterm-compliant experiment.",
+    "official_training_entrypoint": "scripts/train_raw_baseline.py",
+    "official_kaggle_notebook": "notebooks/kaggle_submit_raw_baseline.ipynb",
+    "official_audit_entrypoint": "scripts/audit_midterm_compliance.py"
+  },
+  "public_repo_url": "https://github.com/Demetri65/svg-kaggle-competition.git",
+  "public_weights": {
+    "host": "google_drive",
+    "url": "PENDING_PUBLIC_GOOGLE_DRIVE_URL",
+    "expected_bundle": [
+      "adapter_config.json",
+      "adapter_model.safetensors",
+      "chat_template.jinja",
+      "tokenizer.json",
+      "tokenizer_config.json"
+    ],
+    "kaggle_input_dir": "/kaggle/input/svg-raw-baseline-adapter/"
+  },
+  "fixed_kaggle_inputs": [
+    "/kaggle/input/svg-kaggle-data/",
+    "/kaggle/input/qwen25-coder-1p5b-instruct/",
+    "/kaggle/input/svg-raw-baseline-adapter/"
+  ],
+  "fixed_kaggle_outputs": [
+    "/kaggle/working/submission.csv",
+    "/kaggle/working/submission_debug.csv"
+  ],
+  "training_config": {
+    "base_model": "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "dataset": "train.csv",
+    "format": "Prompt: {prompt}\nSVG:\n{svg}",
+    "num_train_epochs": 1,
+    "per_device_train_batch_size": 4,
+    "gradient_accumulation_steps": 4,
+    "learning_rate": 0.0002,
+    "lr_scheduler_type": "cosine",
+    "warmup_ratio": 0.05,
+    "bf16": true,
+    "optim": "paged_adamw_8bit",
+    "logging_steps": 50,
+    "save_strategy": "steps",
+    "save_steps": 1000,
+    "eval_strategy": "no",
+    "gradient_checkpointing": false,
+    "max_grad_norm": 0.3,
+    "max_length": 1024,
+    "packing": false,
+    "seed": 42,
+    "train_eval_split_test_size": 0.1,
+    "train_eval_split_seed": 42,
+    "lora_rank": 16,
+    "lora_alpha": 32,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "inference_config": {
+    "seed": 1337,
+    "max_new_tokens": 1536,
+    "do_sample": false,
+    "strict_render_size": 256,
+    "strict_viewbox": "0 0 256 256",
+    "max_svg_length": 16000,
+    "max_path_count": 256
+  },
+  "legacy_checked_in_artifacts": {
+    "svg-lora-adapter": {
+      "status": "legacy_unverified",
+      "reason": "The checked-in adapter bundle has no local lineage metadata tying it to the canonical raw baseline, while preserved executed notebooks in the repo point to later canonicalized qwen25coder15b_canon_nosvgo_len2048 artifacts."
+    },
+    "svg-model-merged": {
+      "status": "legacy_unverified",
+      "reason": "The checked-in merged-model directory is metadata-only in git and is not sufficient to prove raw-baseline lineage."
+    }
+  }
+}
