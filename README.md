@@ -1,21 +1,46 @@
 # SVG Kaggle Competition
 
-This repo now standardizes on a single supported submission path: [submission.ipynb](submission.ipynb).
+This repository is intentionally docs-first at the root. Active notes, handoff material, and score provenance stay top-level; all notebooks and historical submission artifacts live under [`archive/`](archive/).
 
-The current notebook is the simpler one-pass baseline that mirrors the flow from [DL_Midterm_Eval.ipynb](DL_Midterm_Eval.ipynb), but adapts it for Google Colab with Google Drive mounting, repo checkout, persistent output folders, and merged-model discovery with a temporary base-plus-LoRA fallback.
+## Root Contract
 
-## Supported Workflow
+The root is reserved for:
 
-Use [submission.ipynb](submission.ipynb) for all current runs.
+- execution and handoff docs
+- report and planning material
+- tracked scripts under `scripts/`
+- tracked datasets under `datasets/`
+- archived notebooks and submissions under `archive/`
+- lightweight model metadata under `svg-model-merged/`, `svg-lora-adapter/`, and `svg-lora-checkpoints/`
 
-It is the only supported execution path and is responsible for:
+No notebooks should remain at the repository root.
 
-- Mounting Google Drive and checking out the repo in the Colab runtime.
-- Locating the required CSV inputs: `test.csv`, `train.csv`, and `sample_submission.csv`.
-- Loading the merged inference model when available.
-- Falling back to base model plus LoRA adapter only when merged weights are not available yet.
-- Running midterm-style batched SVG generation and cleanup.
-- Writing the two supported outputs: `submission.csv` and `submission_debug.csv`.
+## Where Things Live
+
+- [`PROCESS.md`](PROCESS.md): consolidated process notes for data cleaning, training, inference, and artifact locations.
+- [`TESTING_AND_PUSH.md`](TESTING_AND_PUSH.md): validation commands and the pre-push checklist for your friend.
+- [`SCORECARD.md`](SCORECARD.md): score provenance, submission artifact reference, commit SHA, and Kaggle submission metadata.
+- [`archive/README.md`](archive/README.md): inventory of every archived notebook and retired experiment path.
+- [`archive/notebooks/inference/submission.ipynb`](archive/notebooks/inference/submission.ipynb): archived one-pass baseline submission notebook.
+- [`archive/notebooks/evaluation/DL_Midterm_Eval.ipynb`](archive/notebooks/evaluation/DL_Midterm_Eval.ipynb): archived earlier midterm evaluation notebook mirrored by the baseline inference flow.
+
+## Model Artifact Policy
+
+The repository no longer stores merged model weights in git. The path `svg-model-merged/model.safetensors` is intentionally ignored and must be supplied from external storage when needed.
+
+The lightweight metadata that remains tracked in `svg-model-merged/` is:
+
+- `config.json`
+- `generation_config.json`
+- `tokenizer.json`
+- `tokenizer_config.json`
+- `chat_template.jinja`
+
+LoRA adapter and checkpoint directories are still preserved in the repo history and working tree for now, but they are treated as historical artifacts rather than files that should grow further.
+
+## Baseline Workflow Reference
+
+The archived baseline inference path is documented in [`PROCESS.md`](PROCESS.md) and preserved in [`archive/notebooks/inference/submission.ipynb`](archive/notebooks/inference/submission.ipynb).
 
 Baseline inference settings:
 
@@ -28,39 +53,12 @@ Supported runtime contract:
 - Input: `test.csv`
 - Outputs: `submission.csv`, `submission_debug.csv`
 
-## Model Loading Rule
+## Archive Policy
 
-The preferred inference path is the merged model directory, `svg-model-merged`.
+Everything notebook-shaped or submission-output-shaped that is not root documentation belongs under `archive/`.
 
-The current notebook first checks for merged weights inside the runtime checkout. If they are missing, it checks the Drive-backed project folder and copies them into the runtime checkout. If merged weights still are not available, the notebook temporarily falls back to the current base-model-plus-LoRA load path.
+- Historical experiment notebooks live under `archive/notebooks/`.
+- Historical submission CSVs live under `archive/submissions/`.
+- The retry-aware variant remains preserved at [`archive/2026-03-30-retry-experiment/`](archive/2026-03-30-retry-experiment/).
 
-That fallback exists only to keep the Colab workflow usable until the merged model is uploaded to Drive. Once merged weights are always available, the fallback should be removed.
-
-## Repo Layout
-
-- [submission.ipynb](submission.ipynb): the only supported Colab submission notebook.
-- [DL_Midterm_Eval.ipynb](DL_Midterm_Eval.ipynb): the earlier midterm evaluation notebook that the current supported notebook intentionally mirrors.
-- [`archive/`](./archive): historical experiment notebooks and retired inference variants preserved for documentation only.
-
-`submission_pipeline.py` is intentionally no longer part of the supported or archived submission flow.
-
-## Historical Strategies
-
-The notebooks in [`archive/`](./archive) are preserved to document strategies that were tried before the repo was simplified into the current single-notebook flow. They are historical references, not supported entrypoints.
-
-- [archive/2026-03-30-retry-experiment/](archive/2026-03-30-retry-experiment): retry-aware inference variant with archived notebook outputs, helper code, and run notes. This experiment was not promoted because it underperformed the simpler one-pass baseline.
-
-- [archive/submission_analysis.ipynb](archive/submission_analysis.ipynb): analyzed `train.csv`, compared `body_only` versus `full_svg`, and produced mode-selection guidance for the older batch workflow. This was superseded because the repo no longer needs a separate analysis notebook to drive multiple execution notebooks.
-- [archive/submission_batch_1.ipynb](archive/submission_batch_1.ipynb): ran deterministic first-pass inference for batch 1 of 4 with no retry stage. This was superseded by a single batched notebook that handles the full test set directly.
-- [archive/submission_batch_2.ipynb](archive/submission_batch_2.ipynb): ran deterministic first-pass inference for batch 2 of 4 with no retry stage. This was superseded for the same reason as batch 1.
-- [archive/submission_batch_3.ipynb](archive/submission_batch_3.ipynb): handled the primary H100-backed split for batch 3 and wrote partial outputs until the coordinated split notebooks were complete. This was superseded because the supported flow no longer depends on split coordination across multiple notebooks.
-- [archive/submission_batch_3a_temp.ipynb](archive/submission_batch_3a_temp.ipynb): temporary supporting split for batch 3 used to produce one partial shard of the coordinated multi-notebook run. This was superseded by the single-pass Colab workflow.
-- [archive/submission_batch_3b_temp.ipynb](archive/submission_batch_3b_temp.ipynb): final temporary supporting split for batch 3 used to complete the coordinated multi-notebook run. This was superseded by the single-pass Colab workflow.
-- [archive/submission_batch_4.ipynb](archive/submission_batch_4.ipynb): ran deterministic first-pass inference for batch 4 of 4 with no retry stage. This was superseded by full-dataset batching in the supported notebook.
-- [archive/submission_merge_and_repair.ipynb](archive/submission_merge_and_repair.ipynb): merged batch outputs, repaired only failed rows, and wrote the final `submission.csv`. This was superseded because the repo now prioritizes the simpler midterm-style one-pass generation flow in Colab.
-
-## Migration Note
-
-The repo previously explored a more operational workflow built around split-batch inference, merge-and-repair, and separate train-set analysis. That structure documented useful experiments, but it also made submission runs harder to follow and slower to reproduce in Google Colab.
-
-The current repo keeps those experiments under `archive/` for documentation while standardizing on [submission.ipynb](submission.ipynb) as the canonical path because it is simpler, faster to run end-to-end in Colab, and closer to the successful `DL_Midterm_Eval.ipynb` flow.
+If new experiments are added later, archive them by category rather than putting them back at the root.

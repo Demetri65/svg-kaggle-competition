@@ -1,3 +1,6 @@
+.DS_Store
 test.csv
 train.csv
 sample_submission.csv
+/submission*.csv
+/svg-model-merged/model.safetensors

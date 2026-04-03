@@ -18,7 +18,7 @@ The notebook still writes the same final artifacts:
 
 ## Recommended First Run
 
-1. Open `submission.ipynb` in Colab.
+1. Open `archive/notebooks/inference/submission.ipynb` in Colab.
 2. Run the notebook top to bottom without changing any settings.
 3. Wait for the final submission build to finish.
 4. Download or inspect `submission_debug.csv`.

@@ -7,7 +7,7 @@ This file is the prioritized completion plan for turning the current repo baseli
 - Ablations: `25%`
 - Leaderboard Performance: `20%`
 
-The current assumption is that the `DL_Midterm_Eval.ipynb` / `submission.ipynb` path is the completed baseline. Everything below is structured to preserve that baseline first, then improve rigor and score. The retry-aware inference variant archived under `archive/2026-03-30-retry-experiment` is exploratory only and should not be treated as the canonical path.
+The current assumption is that the archived baseline preserved in `archive/notebooks/evaluation/DL_Midterm_Eval.ipynb` and `archive/notebooks/inference/submission.ipynb` is the completed baseline. Everything below is structured to preserve that baseline first, then improve rigor and score. The retry-aware inference variant archived under `archive/2026-03-30-retry-experiment` is exploratory only and should not be treated as the canonical path.
 
 ## 1. Lock the Baseline
 
@@ -130,7 +130,7 @@ Exit criteria:
 
 ## Assumptions
 
-- The current `DL_Midterm_Eval.ipynb` / `submission.ipynb` path is the completed baseline state.
+- The archived `DL_Midterm_Eval.ipynb` / `submission.ipynb` path under `archive/notebooks/` is the completed baseline state.
 - No public GitHub URL, public model-weights URL, or leaderboard score should be fabricated.
 - The initial draft is markdown-first rather than LaTeX-first.
 - Forward-looking content can appear in the report only when it is clearly labeled as planned.

@@ -2,7 +2,7 @@
 
 This snapshot preserves the retry-aware inference experiment exactly as it existed before the repo was rolled back to the simpler one-pass baseline.
 
-- Purpose: retry-aware inference and XML-debug workflow for `submission.ipynb`
+- Purpose: retry-aware inference and XML-debug workflow for `archive/notebooks/inference/submission.ipynb`
 - Helper version: `2026-03-29-debug-fix-v1`
 - Main config:
   - pass 1 `2048`
@@ -19,7 +19,7 @@ This snapshot preserves the retry-aware inference experiment exactly as it exist
 
 Files in this snapshot:
 
-- `submission.ipynb`: archived notebook with outputs preserved
+- `../notebooks/inference/submission.ipynb`: archived one-pass baseline notebook that this retry path was compared against
 - `submission_inference_utils.py`: retry/helper implementation used by the notebook
 - `INFERENCE_FIRST_STEPS.md`: runbook and debug notes for the retry experiment
 

@@ -1,6 +1,6 @@
 # Initial Draft Report: Text-to-SVG Generation for the DL Spring 2026 Kaggle Contest
 
-This markdown draft mirrors the required ACL report structure and is intentionally organized around the revised course priorities: methodology, code and reproducibility, ablations, and leaderboard performance. It treats the current midterm-evaluation and submission workflow as the completed baseline and labels all future work explicitly as planned.
+This markdown draft mirrors the required ACL report structure and is intentionally organized around the revised course priorities: methodology, code and reproducibility, ablations, and leaderboard performance. It treats the archived midterm-evaluation and submission workflow as the completed baseline and labels all future work explicitly as planned.
 
 Code repository: `TODO: insert public GitHub repository URL`
 
@@ -18,7 +18,7 @@ This project targets the DL Spring 2026 Kaggle contest on text-to-SVG generation
 
 Our completed baseline uses `Qwen/Qwen2.5-Coder-1.5B-Instruct` fine-tuned with LoRA on prompt-to-SVG pairs, then performs deterministic inference with a merged model and a post-generation cleanup pipeline. The core methodological choice is evaluator alignment: instead of treating SVG generation as unconstrained free-form text generation, the pipeline explicitly optimizes for producing parser-valid, renderable SVGs that satisfy the contest contract. In practice, this means preferring a full-SVG prompt format, using deterministic decoding for the baseline submission path, and applying layered output cleanup consisting of extraction, regex repair, XML recovery, validation, and fallback behavior.
 
-This baseline is not yet the final optimized competition system. In particular, broader score optimization, expanded ablations, Kaggle no-internet packaging, and leaderboard tracking are planned next steps and are not claimed as completed here. A later retry-aware inference variant is preserved under `archive/2026-03-30-retry-experiment`, but it is treated as archived exploratory work rather than the active baseline.
+This baseline is not yet the final optimized competition system. In particular, broader score optimization, expanded ablations, Kaggle no-internet packaging, and leaderboard tracking are planned next steps and are not claimed as completed here. The baseline workflow is preserved under `archive/notebooks/evaluation/DL_Midterm_Eval.ipynb` and `archive/notebooks/inference/submission.ipynb`. A later retry-aware inference variant is preserved under `archive/2026-03-30-retry-experiment`, but it is treated as archived exploratory work rather than the active baseline.
 
 ## Dataset
 
@@ -103,7 +103,7 @@ However, sampled formatted examples have an average token length of about `2358`
 
 ### Inference Setup
 
-The current supported workflow is a one-pass submission path that packages the baseline logic for Colab and Drive execution.
+The archived supported workflow is a one-pass submission path preserved under `archive/notebooks/inference/submission.ipynb` that packages the baseline logic for Colab and Drive execution.
 
 The completed baseline inference settings are:
 
