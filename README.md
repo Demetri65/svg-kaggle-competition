@@ -26,7 +26,7 @@ SVG:
 
 ## Reproduction
 
-Run the `DL_Midterm_Final.ipynb` notebook with the appropriate paths changed for inputs and outputs along with model weights.
+Run the `DL_Midterm_Final.ipynb` (Evaluation Code Section) notebook with the appropriate paths changed for inputs and outputs along with model weights.
 
 ## Archive Policy
 
