@@ -21,7 +21,7 @@ SVG:
 - Base model: `Qwen/Qwen2.5-Coder-1.5B-Instruct`
 - LoRA targets: `q_proj`, `k_proj`, `v_proj`, `o_proj`, `gate_proj`, `up_proj`, `down_proj`
 - Training hyperparameters: `1` epoch, batch size `4`, gradient accumulation `4`, learning rate `2e-4`, cosine schedule, `warmup_ratio=0.05`, BF16, `paged_adamw_8bit`, `max_length=1024`, seed `42`
-- Inference hyperparameters: deterministic decoding, `max_new_tokens=1536`, seed `1337`
+- Inference hyperparameters: deterministic decoding, `max_new_tokens=1536`
 - Submission guardrails: strict `256x256` SVG wrapper, renderability check, allowed-tag whitelist, max length `16000`, max path count `256`
 
 ## Reproduction
