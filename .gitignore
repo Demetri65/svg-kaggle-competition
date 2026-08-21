@@ -4,3 +4,11 @@ train.csv
 sample_submission.csv
 /submission*.csv
 /svg-model-merged/model.safetensors
+
+# New local training output; existing published artifacts remain tracked.
+checkpoints/
+outputs/
+wandb/
+*.pt
+*.pth
+*.safetensors
