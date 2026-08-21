@@ -68,7 +68,7 @@ Invalid generations are rejected or replaced by the notebook's fallback before t
 
 4. For offline Kaggle inference, attach the dataset, base model, and adapter at the fixed paths documented in [`artifacts/raw_baseline_manifest.json`](artifacts/raw_baseline_manifest.json), then run [`notebooks/kaggle_submit_raw_baseline.ipynb`](notebooks/kaggle_submit_raw_baseline.ipynb).
 
-The existing public raw-baseline adapter bundle is hosted on [Google Drive](https://drive.google.com/drive/folders/1UCJATHdn5yBFJJzH_TNXpmjuZBHDgyhX?usp=drive_link).
+An existing public artifact folder is hosted on [Google Drive](https://drive.google.com/drive/folders/1UCJATHdn5yBFJJzH_TNXpmjuZBHDgyhX?usp=drive_link).
 
 ## Model artifacts
 
@@ -78,7 +78,7 @@ Three large artifact directories are already published in this repository's hist
 - `svg-lora-checkpoints/` contains historical training checkpoints.
 - `svg-model-merged/` contains the checked-in merged-model metadata files.
 
-The manifest marks the checked-in adapter and merged-model directories as legacy and unverified because their local metadata does not establish lineage to the canonical raw baseline. Future weight bundles should be kept in external storage, following the existing [public Google Drive bundle](https://drive.google.com/drive/folders/1UCJATHdn5yBFJJzH_TNXpmjuZBHDgyhX?usp=drive_link), rather than added to Git history.
+The manifest marks the checked-in adapter and merged-model directories as legacy and unverified because their local metadata does not establish lineage to the canonical raw baseline. Future weight bundles should be kept in external storage, following the existing [public Google Drive artifact folder](https://drive.google.com/drive/folders/1UCJATHdn5yBFJJzH_TNXpmjuZBHDgyhX?usp=drive_link), rather than added to Git history.
 
 ## Repository structure
 
